@@ -6,6 +6,7 @@
 #include <bit>
 #include <algorithm>
 #include <cmath>
+#include <execution>
 
 using namespace std;
 
@@ -748,7 +749,7 @@ pair<Board*, double> Board::get_best(const color_t& color, const bool& show) {
 	vector<Board*> moves = get_moves(color);
 	std::unordered_map<Board*, double> results;
 
-	std::for_each(moves.begin(), moves.end(), [&](Board* move) {
+	std::for_each(std::execution::par, moves.begin(), moves.end(), [&](Board* move) {
 		results[move] = reval(move, color, ocolor, 1, alpha, beta);
 	});
 
