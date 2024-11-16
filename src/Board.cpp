@@ -14,8 +14,6 @@ const int EVAL_DEPTH = 4;
 const bool debug = true;
 
 Board::Board() {
-	previous = nullptr;
-
 	uint64_t pawns = 0b11111111ULL << 8;
 
 	uint64_t bishops = 0b00100100;
@@ -41,24 +39,6 @@ Board::Board() {
 
 	blrmove = false;
 	wlrmove = false;
-}
-
-Board::Board(Board* previous) {
-	this->previous = previous;
-
-	board = previous->board;
-
-	bcasle = previous->bcasle;
-	wcasle = previous->wcasle;
-
-	bkmove = previous->bkmove;
-	wkmove = previous->wkmove;
-
-	brrmove = previous->brrmove;
-	wrrmove = previous->wrrmove;
-
-	blrmove = previous->blrmove;
-	wlrmove = previous->wlrmove;
 }
 
 void Board::get_white(uint64_t& mask) {
@@ -545,87 +525,65 @@ bool Board::stalemate() {
 	return false;
 }
 
-void Board::move(const uint64_t& start, const uint64_t& dest) {
-	uint64_t w = 0;
-	uint64_t b = 0;
-	get_white(w);
-	get_black(b);
+void Board::undo(const Move& move) {
+    color_t color = turn;
 
-	for (int i = 11; i >= 0; i--) {
-		uint64_t& sub = board[i];
-		if (sub & start) {
-			sub ^= start;
-			if (i == pawns) {
-				if (dest & 18374686479671623680) {
-					board[queens] |= dest;
-					continue;
-				}
-				else if (start & 1095216660480 && !(dest & b) && !(start << 8 & dest)) {
-					board[black + pawns] &= ~(dest >> 8);
-				}
-			}
-			else if (i == black + pawns) {
-				if (dest & 255) {
-					board[black + queens] |= dest;
-					continue;
-				}
-				else if (start & 4278190080 && !(dest & w) && !(start >> 8 & dest)) {
-					board[pawns] &= ~(dest << 8);
-				}
-			} else if (i == rooks) {
-				if (start & 0b10000000) {
-					wlrmove = true;
-				} else {
-					wrrmove = true;
-				}
-			}
-			else if (i == black + rooks) {
-				if (start & 9223372036854775808) {
-					blrmove = true;
-				} else {
-					brrmove = true;
-				}
-			}
-			else if (i == kings) {
-				wkmove = true;
-				if (dest & board[rooks]) {
-					if (dest & 0b10000000) {
-						board[kings] |= 0b00100000;
-						board[rooks] &= ~dest;
-						board[rooks] |= 0b00010000;
-					}
-					else {
-						board[kings] |= 0b00000010;
-						board[rooks] &= ~dest;
-						board[rooks] |= 0b00000100;
-					}
-					wcasle = true;
-					return;
-				}
-			}
-			else if (i == black + kings) {
-				bkmove = true;
-				if (dest & board[black + rooks]) {
-					if (dest & 9223372036854775808) {
-						board[black + kings] |= 2305843009213693952;
-						board[black + rooks] &= ~dest;
-						board[black + rooks] |= 1152921504606846976;
-					}
-					else {
-						board[black + kings] |= 144115188075855872;
-						board[black + rooks] &= ~dest;
-						board[black + rooks] |= 288230376151711744;
-					}
-					bcasle = true;
-					return;
-				}
-			}
 
-			sub |= dest;
+	if (move.captured_piece != none){
+        // we need to reassign the move
+        if (!move.enpassant){
+            board[move.captured_piece] |= 1ULL << move.end_position;
+        }
+        else{
+            if (color == white){ // white
+                board[move.captured_piece] |= (1ULL << move.end_position) >> 8;
+            }
+            else{ // black
+                board[move.captured_piece] |= (1ULL << move.end_position) << 8;
+            }
+        }
+    }
+    // castling
+    if (move.castled != castled_t::none){
+        if (move.castled == castled_t::left){
+            if (turn == white){
+                board[piece_t::rooks + turn] &= ~10ULL;
+                board[piece_t::rooks + turn] |= 80ULL;
+                board[piece_t::kings + turn] = 80ULL;
+            }
+            else{
+                board[piece_t::rooks + turn] &= ~10ULL;
+                board[piece_t::kings + turn] = 80ULL;
+            }
+        }
+    }
+    
+    // move back the piece
+    board[move.moved_piece] |= 1ULL << move.start_position;
+    
+    
+    // Change the player's turn
+    if (turn == white) {
+		turn = black;
+	} else {
+		turn = white;
+	}
+}
+
+void Board::move(const Move& move) {
+	
+	if (move.castle == none) {
+		if (not move.promotion) {
+			board[move.captured_piece] ^= 1ULL << move.end_position;
+			board[move.]oved_piece
+m =^ 
 		}
-		else {
-			sub &= ~dest;
-		}
+	}
+	
+	if (turn == white) {
+		turn = black;
+	} else {
+		turn = white;
 	}
 }
 
@@ -828,3 +786,7 @@ e:;
 	}
 	return eval;
 }
+
+
+// greatness starts //
+// Board::makeMove()

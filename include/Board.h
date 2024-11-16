@@ -6,7 +6,8 @@
 
 using namespace std;
 
-enum piece_t { pawns, bishops, knights, rooks, queens, kings };
+enum piece_t { pawns, bishops, knights, rooks, queens, kings, enpassant=12, empty };
+enum castled_t { none, left, right };
 
 const uint8_t value_table[] = {
 	1, 3, 3, 5, 9, 0,
@@ -285,26 +286,38 @@ const uint64_t bpc_table[] = {
 	18014398509481984
 };
 
+
+struct Move{
+    uint8_t start_position;
+    uint8_t end_position;
+    bool check;
+    castled_t castled;
+    bool promotion;
+    bool enpassant;
+    piece_t captured_piece;
+    piece_t moved_piece;
+}
+
 class Board
 {
 public:
-	bool bcasle;
-	bool wcasle;
+	bool bcasle; // black castle
+	bool wcasle; // white castle
 
-	bool bkmove;
-	bool wkmove;
+	bool bkmove; // black king move
+	bool wkmove; // white king move
 
-	bool brrmove;
-	bool wrrmove;
+	bool brrmove; // black right rook moved
+	bool wrrmove; // white right rook moved
 
-	bool blrmove;
-	bool wlrmove;
+	bool blrmove; // black left rook moved
+	bool wlrmove; // white left rook moved
 
-	array<uint64_t, 12> board;
-	Board* previous;
+	array<uint64_t, 13> board;
+	
+	color_t turn;
 
 	Board();
-	Board(Board* previous);
 
 	void get_white(uint64_t& mask);
 	void get_black(uint64_t& mask);
@@ -329,7 +342,9 @@ public:
 
 	vector<Board*> get_moves(const color_t& color);
 
-	void move(const uint64_t& start, const uint64_t& end);
+	void move(const Move& move);
+	void undo(const Move& move);
+
 	double evaluate(color_t color);
 	pair<Board*, double> get_best(const color_t& color, const bool& show=false);
 };

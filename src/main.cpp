@@ -10,6 +10,8 @@
 #include "test.h"
 #include <thread>
 
+#define test true
+
 
 int play() {
 	//Testing code for profiling
@@ -21,7 +23,13 @@ int play() {
 	//End Test
 	
 	char c;
-	std::cin >> c;
+    std::cout << "Enter your color (w/b): ";
+    if (test){
+        c = 'w';
+    }
+    else{
+	    std::cin >> c;
+    }
 	color_t color = c == 'w'? white: black;
 	bool can_move = color == white;
 	std::thread* move_thread;
