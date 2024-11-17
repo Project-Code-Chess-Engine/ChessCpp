@@ -233,8 +233,12 @@ int main() {
 	// we can just write some test code here for now
 	Board board;
 	render_board(&board, "before");
-	board.move({
+    Move move({
 		8, 16, false, castled_t::none, false, false, piece_t::empty, piece_t::pawns
 	});
+	board.move(move);
 	render_board(&board, "after");
+
+    board.undo(move);
+	render_board(&board, "after2");
 }
