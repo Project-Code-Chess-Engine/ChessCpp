@@ -232,10 +232,12 @@ int main() {
 
 	// we can just write some test code here for now
 	Board board;
+    board.board[black + pawns] |= 0x800000000;
+    board.board[white + pawns] |= 0x400000000;
 	render_board(&board, "before");
     Move move({
-		8, 16, false, castled_t::none, false, false, piece_t::empty, piece_t::pawns
-	});
+		34, 34 + 9, false, castled_t::none, false, true, piece_t::pawns, piece_t::pawns
+	}); // std::countr_zero(0x800000000ULL)
 	board.move(move);
 	render_board(&board, "after");
 
