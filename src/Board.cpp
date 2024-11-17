@@ -452,10 +452,10 @@ bool Board::stalemate() {
 
 void Board::undo(const Move& move) {
     color_t color = turn;
+    int opposingTurn = color_t::black - turn;
 
     // castling
     if (move.castled != castled_t::none){
-        render_board(this, "before_castle_undo");
         if (turn == white){
             if (move.castled == castled_t::left){
                 board[piece_t::rooks + turn] &= ~0x10ULL;
@@ -478,25 +478,24 @@ void Board::undo(const Move& move) {
             }
             board[piece_t::kings + turn] = 0x800000000000000ULL;
         }
-        render_board(this, "after_castle_undo");
     }
     else if (move.moved_piece != piece_t::empty){
         // move back the piece
-        board[move.moved_piece] |= 1ULL << move.start_position;
-        board[move.moved_piece] &= ~(1ULL << move.end_position);
+        board[move.moved_piece + turn] |= 1ULL << move.start_position;
+        board[move.moved_piece + turn] &= ~(1ULL << move.end_position);
     }
 
     if (move.captured_piece != piece_t::empty){
         // we need to reassign the move
         if (!move.enpassant){
-            board[move.captured_piece] |= 1ULL << move.end_position;
+            board[move.captured_piece + opposingTurn] |= 1ULL << move.end_position;
         }
         else{
             if (color == white){ // white
-                board[move.captured_piece] |= (1ULL << move.end_position) >> 8;
+                board[move.captured_piece + opposingTurn] |= (1ULL << move.end_position) >> 8;
             }
             else{ // black
-                board[move.captured_piece] |= (1ULL << move.end_position) << 8;
+                board[move.captured_piece + opposingTurn] |= (1ULL << move.end_position) << 8;
             }
         }
     }

@@ -312,7 +312,7 @@ public:
 
 	std::array<uint64_t, 13> board;
 	
-	color_t turn;
+	color_t turn = color_t::white;
 
 	Board();
 
