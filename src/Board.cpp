@@ -579,16 +579,16 @@ void Board::move(const Move& move) {
 
 				// Reset the pieces
 				board[black + kings] = 0b00100000ULL << 56;
-				board[black + rooks] &= ~9223372036854775808;
-				board[black + rooks] |= 1152921504606846976;
+				board[black + rooks] &= ~0b10000000ULL << 56;
+				board[black + rooks] |= 0b00010000ULL << 56;
 			}
 			else {
 				// Castling right
 
 				// Reset the pieces
 				board[black + kings] = 0b00000010ULL << 56;
-				board[black + rooks] &= ~9223372036854775808;
-				board[black + rooks] |= 288230376151711744;
+				board[black + rooks] &= ~0b00000001ULL << 56;
+				board[black + rooks] |= 0b00000100ULL << 56;
 			}
 
 			// No longer castled

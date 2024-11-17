@@ -247,8 +247,9 @@ int main() {
 
     // castle
     Board board;
+	board.turn = black;
     Move move({
-        3, 1, false, castled_t::left, false, false, piece_t::empty, piece_t::kings
+        3, 1, false, castled_t::right, false, false, piece_t::empty, piece_t::kings
     });
     render_board(&board, "before");
     board.move(move);
