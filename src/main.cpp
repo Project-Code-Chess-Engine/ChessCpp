@@ -232,28 +232,27 @@ int main() {
 
 	// we can just write some test code here for now
     // en passant
-	Board board;
-    board.board[black + pawns] |= 0x800000000;
-    board.board[white + pawns] |= 0x400000000;
+	// Board board;
+    // board.board[black + pawns] |= 0x800000000;
+    // board.board[white + pawns] |= 0x400000000;
+	// render_board(&board, "before");
+    // Move move({
+	// 	34, 34 + 9, false, castled_t::none, false, true, piece_t::pawns, piece_t::pawns
+	// });
+	// board.move(move);
+	// render_board(&board, "after");
 
-	render_board(&board, "before");
-    Move move({
-		34, 34 + 9, false, castled_t::none, false, true, piece_t::pawns, piece_t::pawns
-	});
-	board.move(move);
-	render_board(&board, "after");
-
-    board.undo(move);
-	render_board(&board, "after2");
+    // board.undo(move);
+	// render_board(&board, "after2");
 
     // castle
-    // Board board;
-    // Move move({
-    //     3, 1, false, castled_t::right, false, false, piece_t::empty, piece_t::kings
-    // });
-    // render_board(&board, "before");
-    // board.move(move);
-    // render_board(&board, "after");
-    // board.undo(move);
-    // render_board(&board, "undo");
+    Board board;
+    Move move({
+        3, 1, false, castled_t::left, false, false, piece_t::empty, piece_t::kings
+    });
+    render_board(&board, "before");
+    board.move(move);
+    render_board(&board, "after");
+    board.undo(move);
+    render_board(&board, "undo");
 }

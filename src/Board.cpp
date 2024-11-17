@@ -451,6 +451,13 @@ bool Board::stalemate() {
 }
 
 void Board::undo(const Move& move) {
+    // Change the player's turn
+    if (turn == white) {
+		turn = black;
+	} else {
+		turn = white;
+	}
+    
     color_t color = turn;
     int opposingTurn = color_t::black - turn;
 
@@ -499,14 +506,6 @@ void Board::undo(const Move& move) {
             }
         }
     }
-    
-    
-    // Change the player's turn
-    if (turn == white) {
-		turn = black;
-	} else {
-		turn = white;
-	}
 }
 
 void Board::move(const Move& move) {
