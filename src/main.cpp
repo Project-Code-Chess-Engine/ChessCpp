@@ -228,5 +228,13 @@ int engine() {
 
 int main() {
 	//return engine();
-	return play();
+	//return play();
+
+	// we can just write some test code here for now
+	Board board;
+	render_board(&board, "before");
+	board.move({
+		8, 16, false, castled_t::none, false, false, piece_t::empty, piece_t::pawns
+	});
+	render_board(&board, "after");
 }

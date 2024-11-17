@@ -8,6 +8,7 @@
 #include <cmath>
 #include <execution>
 #include <exception>
+#include <string>
 
 const int EVAL_DEPTH = 4;
 const bool debug = true;
@@ -504,15 +505,17 @@ void Board::move(const Move& move) {
 		board[move.moved_piece] &= ~(1ULL << move.start_position);
 
 		// Check to see if it was an en passent move
-		if (not enpassant) {
-			// Remove the captured piece
-			board[move.captured_piece] &= ~(1ULL << move.end_position);
-		} else {
-			// Check the color of the pawn moved
-			if (move.moved_piece == pawns) {
-				board[move.captured_piece] &= ~(1ULL << move.end_position >> 8);
+		if (not move.captured_piece == piece_t::empty) {
+			if (not enpassant) {
+				// Remove the captured piece
+				board[move.captured_piece] &= ~(1ULL << move.end_position);
 			} else {
-				board[move.captured_piece] &= ~(1ULL << move.end_position << 8);
+				// Check the color of the pawn moved
+				if (move.moved_piece == pawns) {
+					board[move.captured_piece] &= ~(1ULL << move.end_position >> 8);
+				} else {
+					board[move.captured_piece] &= ~(1ULL << move.end_position << 8);
+				}
 			}
 		}
 
@@ -691,7 +694,7 @@ std::pair<Board*, double> Board::get_best(const color_t& color, const bool& show
 	for (const std::pair<Board*, double> &item : results) {
 		if (debug && show) {
 			std::cout << "result: " << item.second;
-			render_board(item.first, item.second);
+			render_board(item.first, std::to_string(item.second));
 		}
 		if (item.second > eval.second) {
 			eval.first = item.first;
