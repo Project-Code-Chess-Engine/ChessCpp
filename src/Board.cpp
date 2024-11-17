@@ -545,21 +545,35 @@ void Board::undo(const Move& move) {
     }
     // castling
     if (move.castled != castled_t::none){
-        if (move.castled == castled_t::left){
-            if (turn == white){
-                board[piece_t::rooks + turn] &= ~10ULL;
-                board[piece_t::rooks + turn] |= 80ULL;
-                board[piece_t::kings + turn] = 80ULL;
+        render_board(this, "before_castle_undo");
+        if (turn == white){
+            if (move.castled == castled_t::left){
+                board[piece_t::rooks + turn] &= ~0x10ULL;
+                board[piece_t::rooks + turn] |= 0x80ULL;
             }
             else{
-                board[piece_t::rooks + turn] &= ~10ULL;
-                board[piece_t::kings + turn] = 80ULL;
+                board[piece_t::rooks + turn] &= ~0x4ULL;
+                board[piece_t::rooks + turn] |= 0x1ULL;
             }
+            board[piece_t::kings + turn] = 0x8ULL;
         }
+        else{
+            if (move.castled == castled_t::left){
+                board[piece_t::rooks + turn] &= ~0x1000000000000000ULL;
+                board[piece_t::rooks + turn] |= 0x8000000000000000ULL;
+            }
+            else{
+                board[piece_t::rooks + turn] &= ~0x100000000000000ULL;
+                board[piece_t::rooks + turn] |= 0x100000000000000ULL;
+            }
+            board[piece_t::kings + turn] = 0x800000000000000ULL;
+        }
+        render_board(this, "after_castle_undo");
     }
-    
-    // move back the piece
-    board[move.moved_piece] |= 1ULL << move.start_position;
+    else{
+        // move back the piece
+        board[move.moved_piece] |= 1ULL << move.start_position;
+    }
     
     
     // Change the player's turn

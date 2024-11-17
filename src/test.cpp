@@ -7,7 +7,7 @@ using namespace sf;
 using namespace std;
 
 
-void render_board(Board* board, double value) {
+void render_board(Board* board, std::string value) {
 	int piece_size = 45;
 	int board_size = piece_size * 8;
 	RenderWindow window(VideoMode(board_size, board_size), std::format("Value: {}", value));
