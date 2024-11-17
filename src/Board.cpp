@@ -517,19 +517,19 @@ void Board::move(const Move& move) {
 		// Player is not castling
 		
 		// Remove the moved peice from the board
-		board[move.moved_piece] &= ~(1ULL << move.start_position);
+		board[move.moved_piece + turn] &= ~(1ULL << move.start_position);
 
 		// Check to see if it was an en passent move
 		if (move.captured_piece != piece_t::empty) {
 			if (not enpassant) {
 				// Remove the captured piece
-				board[move.captured_piece] &= ~(1ULL << move.end_position);
+				board[move.captured_piece + color_t::black - turn] &= ~(1ULL << move.end_position);
 			} else {
 				// Check the color of the pawn moved
 				if (move.moved_piece == color_t::white) {
-					board[move.captured_piece] &= ~(1ULL << move.end_position >> 8);
+					board[move.captured_piece + color_t::black - turn] &= ~(1ULL << move.end_position >> 8);
 				} else {
-					board[move.captured_piece] &= ~(1ULL << move.end_position << 8);
+					board[move.captured_piece + color_t::black - turn] &= ~(1ULL << move.end_position << 8);
 				}
 			}
 		}
@@ -538,7 +538,7 @@ void Board::move(const Move& move) {
 		if (not move.promotion) {
 			// No promotion
 			// Add the moved piece back onto the board
-			board[move.moved_piece] |= 1ULL << move.end_position;
+			board[move.moved_piece + turn] |= 1ULL << move.end_position;
 		} else {
 			// Promotion
 			// Add a queen onto the board
@@ -580,7 +580,7 @@ void Board::move(const Move& move) {
 				// Castling left
 
 				// Reset the pieces
-				board[black + kings] = 0b00100000 << 56ULL;
+				board[black + kings] = 0b00100000ULL << 56;
 				board[black + rooks] &= ~9223372036854775808;
 				board[black + rooks] |= 1152921504606846976;
 			}
@@ -588,7 +588,7 @@ void Board::move(const Move& move) {
 				// Castling right
 
 				// Reset the pieces
-				board[black + kings] = 0b00000010 << 56ULL;
+				board[black + kings] = 0b00000010ULL << 56;
 				board[black + rooks] &= ~9223372036854775808;
 				board[black + rooks] |= 288230376151711744;
 			}
