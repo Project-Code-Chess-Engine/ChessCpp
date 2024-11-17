@@ -4,8 +4,6 @@
 #include <vector>
 #include <array>
 
-using namespace std;
-
 enum piece_t { pawns, bishops, knights, rooks, queens, kings, enpassant=12, empty };
 enum castled_t { none, left, right };
 
@@ -296,10 +294,9 @@ struct Move{
     bool enpassant;
     piece_t captured_piece;
     piece_t moved_piece;
-}
+};
 
-class Board
-{
+class Board {
 public:
 	bool bcasle; // black castle
 	bool wcasle; // white castle
@@ -313,7 +310,7 @@ public:
 	bool blrmove; // black left rook moved
 	bool wlrmove; // white left rook moved
 
-	array<uint64_t, 13> board;
+	std::array<uint64_t, 13> board;
 	
 	color_t turn;
 
@@ -340,13 +337,13 @@ public:
 	bool stalemate(const color_t& color);
 	bool stalemate();
 
-	vector<Board*> get_moves(const color_t& color);
+	std::vector<Board*> get_moves(const color_t& color);
 
 	void move(const Move& move);
 	void undo(const Move& move);
 
 	double evaluate(color_t color);
-	pair<Board*, double> get_best(const color_t& color, const bool& show=false);
+	std::pair<Board*, double> get_best(const color_t& color, const bool& show=false);
 };
 
 double reval(Board* board, const color_t& og_color, const color_t& curr_color, const int& depth, double alpha, double beta);
