@@ -564,7 +564,7 @@ void Board::move(const Move& move) {
 
 				// Reset the pieces
 				board[kings] = 0b00000010;
-				board[rooks] &= ~0b10000000;
+				board[rooks] &= ~0b00000001;
 				board[rooks] |= 0b00000100;
 			}
 
