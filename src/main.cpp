@@ -249,7 +249,7 @@ int main() {
     Board board;
     board.turn = color_t::black;
     Move move({
-        3, 1, false, castled_t::right, false, false, piece_t::empty, piece_t::kings
+        3, 1, false, castled_t::left, false, false, piece_t::empty, piece_t::kings
     });
     render_board(&board, "before");
     board.move(move);
