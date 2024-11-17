@@ -237,7 +237,7 @@ int main() {
 	render_board(&board, "before");
     Move move({
 		34, 34 + 9, false, castled_t::none, false, true, piece_t::pawns, piece_t::pawns
-	}); // std::countr_zero(0x800000000ULL)
+	});
 	board.move(move);
 	render_board(&board, "after");
 
