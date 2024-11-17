@@ -513,14 +513,14 @@ void Board::undo(const Move& move) {
 void Board::move(const Move& move) {
 	
 	// Check if the player is castling
-	if (move.castled == none) {
+	if (move.castled == castled_t::none) {
 		// Player is not castling
 		
 		// Remove the moved peice from the board
 		board[move.moved_piece] &= ~(1ULL << move.start_position);
 
 		// Check to see if it was an en passent move
-		if (not move.captured_piece == piece_t::empty) {
+		if (move.captured_piece != piece_t::empty) {
 			if (not enpassant) {
 				// Remove the captured piece
 				board[move.captured_piece] &= ~(1ULL << move.end_position);
@@ -556,17 +556,17 @@ void Board::move(const Move& move) {
 				//Left castle
 
 				// Reset Pieces
-				board[kings] = 0b00001000;
-				board[rooks] |= 0b10000000;
-				board[rooks] &= ~0b00010000;
+				board[kings] = 0b00100000;
+				board[rooks] &= ~0b10000000;
+				board[rooks] |= 0b00010000;
 			}
 			else {
 				// Right castle
 
 				// Reset the pieces
-				board[kings] = 0b00001000ULL << 56;
-				board[rooks] |= 0b10000000;
-				board[rooks] &= ~0b00000100;
+				board[kings] = 0b00000010;
+				board[rooks] &= ~0b10000000;
+				board[rooks] |= 0b00000100;
 			}
 
 			// No longer castled
@@ -580,17 +580,17 @@ void Board::move(const Move& move) {
 				// Castling left
 
 				// Reset the pieces
-				board[black + kings] &= ~2305843009213693952;
-				board[black + rooks] |= 9223372036854775808;
-				board[black + rooks] &= ~1152921504606846976;
+				board[black + kings] = 0b00100000 << 56ULL;
+				board[black + rooks] &= ~9223372036854775808;
+				board[black + rooks] |= 1152921504606846976;
 			}
 			else {
 				// Castling right
 
 				// Reset the pieces
-				board[black + kings] &= ~144115188075855872;
-				board[black + rooks] |= 9223372036854775808;
-				board[black + rooks] &= ~288230376151711744;
+				board[black + kings] = 0b00000010 << 56ULL;
+				board[black + rooks] &= ~9223372036854775808;
+				board[black + rooks] |= 288230376151711744;
 			}
 
 			// No longer castled
