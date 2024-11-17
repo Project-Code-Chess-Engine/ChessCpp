@@ -234,7 +234,7 @@ int main() {
 	Board board;
 	render_board(&board, "before");
 	board.move({
-		8, 16, false, castled_t::none, false, false, piece_t::empty, piece_t::pawns
+		0, 0, false, castled_t::left, false, false, piece_t::empty, piece_t::kings
 	});
 	render_board(&board, "after");
 }
