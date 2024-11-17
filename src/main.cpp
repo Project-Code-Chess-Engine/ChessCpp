@@ -6,9 +6,9 @@
 #include <string>
 #include <thread>
 #include "board.h"
-#include "util.h"
 #include "test.h"
 #include <thread>
+#include <util.h>
 
 #define test true
 
@@ -88,12 +88,12 @@ int play() {
 			}
 
 			if (event.type == sf::Event::KeyPressed) {
-				if (event.key.code == Keyboard::Z && board->previous->previous) {
-					Board* prev = board->previous;
-					Board* prevprev = prev->previous;
-					delete board;
-					delete prev;
-					board = prevprev;
+				if (event.key.code == Keyboard::Z) {
+					// Board* prev = board->previous;
+					// Board* prevprev = prev->previous;
+					// delete board;
+					// delete prev;
+					// board = prevprev;
 				}
 				if (event.key.code == Keyboard::R) {
 					delete board;
@@ -137,44 +137,44 @@ int play() {
 				uint64_t mask = 0ULL;
 				color == white ? board->get_white(mask) : board->get_black(mask);
 
-				if (has_selection && can_move) {
-					uint64_t moves = 0;
-					board->get_moves(selected, moves);
-					if (moves & click_pos) {
-						Board* next = new Board(board);
-						next->move(selection, click_pos); //selection
-						if (!next->check(color)) {
-							board = next;
-							can_move = false;
-							selected = pos;
-							has_selection = false;
-							//color = color == white ? black : white;
-							move_thread = new std::thread(
-								[&]() {
-									board = board->get_best(color == white ? black : white, Keyboard::isKeyPressed(Keyboard::LShift)).first;
-									can_move = true;
-									printf("has castled: %d, King moved: %d, rr moved: %d, lr moved: %d\n", board->wcasle, board->wkmove, board->wrrmove, board->wlrmove);
-									double w = board->evaluate(white);
-									cout << "-------------------" << endl;
-									double b = board->evaluate(black);
-									printf("White value: %f, Black value: %f\n", w, b);
-									if (board->checkmate(white)) {
-										cout << "white checkmate" << endl;
-									}
-									if (board->checkmate(black)) {
-										cout << "black checkmate" << endl;
-									} if (board->stalemate()) {
-										cout << "stalemate" << endl;
-									}
-									cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
-								}
-							);
-						} else {
-							delete next;
-						}
-						break;
-					}
-				}
+				// if (has_selection && can_move) {
+				// 	uint64_t moves = 0;
+				// 	board->get_moves(selected, moves);
+				// 	if (moves & click_pos) {
+				// 		Board* next = new Board(board);
+				// 		next->move(selection, click_pos); //selection
+				// 		if (!next->check(color)) {
+				// 			board = next;
+				// 			can_move = false;
+				// 			selected = pos;
+				// 			has_selection = false;
+				// 			//color = color == white ? black : white;
+				// 			move_thread = new std::thread(
+				// 				[&]() {
+				// 					board = board->get_best(color == white ? black : white, Keyboard::isKeyPressed(Keyboard::LShift)).first;
+				// 					can_move = true;
+				// 					printf("has castled: %d, King moved: %d, rr moved: %d, lr moved: %d\n", board->wcasle, board->wkmove, board->wrrmove, board->wlrmove);
+				// 					double w = board->evaluate(white);
+				// 					cout << "-------------------" << endl;
+				// 					double b = board->evaluate(black);
+				// 					printf("White value: %f, Black value: %f\n", w, b);
+				// 					if (board->checkmate(white)) {
+				// 						cout << "white checkmate" << endl;
+				// 					}
+				// 					if (board->checkmate(black)) {
+				// 						cout << "black checkmate" << endl;
+				// 					} if (board->stalemate()) {
+				// 						cout << "stalemate" << endl;
+				// 					}
+				// 					cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+				// 				}
+				// 			);
+				// 		} else {
+				// 			delete next;
+				// 		}
+				// 		break;
+				// 	}
+				// }
 				
 				if (mask & click_pos) {
 					selected = pos;
@@ -222,36 +222,7 @@ int play() {
 
 
 int engine() {
-	char color;
-	std::cin >> color;
-	color_t engine_color = color == 'w' ? white : black;
-
-	Board* board = new Board();
-
-	while (true) {
-		//Makes the opponent's move
-		board = new Board(board);
-		for (int i = 0; i < 12; i++) {
-			uint64_t value;
-			cin >> value;
-			board->board[i] = value;
-		}
-
-
-		//Moves and transmits back
-		board = board->get_best(engine_color).first;
-		uint64_t prev = 0;
-		engine_color == white ? board->previous->get_white(prev): board->previous->get_black(prev);
-		uint64_t curr = 0;
-		engine_color == white ? board->get_white(curr) : board->get_black(curr);
-
-		uint64_t diff = prev ^ curr;
-		int start = std::countr_zero(prev & diff);
-		int end = std::countr_zero(curr & diff);
-
-		std::cout << to_string(start) << std::endl;
-		std::cout << to_string(end) << std::endl;
-	}
+	return 0;
 }
 
 

@@ -7,8 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <execution>
-
-using namespace std;
+#include <exception>
 
 const int EVAL_DEPTH = 4;
 const bool debug = true;
@@ -113,48 +112,7 @@ void Board::king_attack(const uint8_t& position, uint64_t& mask) {
 }
 
 void Board::pawn_attack(const uint8_t& position, uint64_t& mask) {
-	//Needs en passant
-	uint64_t w = 0;
-	uint64_t b = 0;
 
-	get_white(w);
-	get_black(b);
-
-	uint64_t a = w | b;
-	uint64_t pos = 1ULL << position;
-	uint64_t m = pos;
-
-	uint8_t y = position >> 3 << 3;
-	uint64_t na = ~a;
-
-	mask = 0;
-
-	if (m & w) {
-		//en passant white
-		if (m & 1095216660480 && previous) {
-			uint8_t epawns = board[black + pawns] >> y & (m << 1 | m >> 1);
-			epawns &= (uint8_t) (((previous->board[black + pawns] & ~board[black + pawns]) >> y) >> 16);
-			mask |= (((uint64_t) epawns) << y) << 8;
-		}
-
-		mask |= m = m << 8 & na;
-		mask |= m = (m & 16711680) << 8 & na;
-
-		mask |= wpc_table[position] & b;
-	}
-	else {
-		//en passant black
-		if (m & 4278190080 && previous) {
-			uint8_t epawns = board[pawns] >> y & (m << 1 | m >> 1);
-			epawns &= (uint8_t)(((previous->board[pawns] & ~ board[pawns]) << 16) >> y);
-			mask |= (((uint64_t)epawns) << y) >> 8;
-		}
-
-		mask |= m = m >> 8 & na;
-		mask |= m = (m & 280375465082880) >> 8 & na;
-
-		mask |= bpc_table[position] & w;
-	}
 }
 
 void Board::bishop_attack(const uint8_t& position, uint64_t& mask) {
@@ -398,7 +356,7 @@ void Board::get_moves(const uint8_t& position, uint64_t& mask) {
 				king_attack(position, mask);
 				break;
 			default:
-				cout << "invalid piece" << endl;
+				throw std::runtime_error("Invalid Piece");
 				break;
 			}
 		}
@@ -463,7 +421,7 @@ bool Board::check(const color_t& color) {
 }
 
 bool Board::checkmate(const color_t& color) {
-	vector<Board*> moves;
+	std::vector<Board*> moves;
 	bool r = false;
 	if (check(color)) {
 		moves = get_moves(color);
@@ -484,44 +442,10 @@ e:;
 }
 
 bool Board::stalemate(const color_t& color) {
-	vector<Board*> moves;
-	bool r = false;
-	if (!check(color)) {
-		moves = get_moves(color);
-		for (Board* move : moves) {
-			bool check = move->check(color);
-			if (!check) {
-				r = false;
-				goto e;
-			}
-		}
-		r = true;
-	}
-e:;
-	for (Board* move : moves) {
-		delete move;
-	}
-	return r;
+	return false;
 }
 
 bool Board::stalemate() {
-	std::unordered_map<Board*, int> moves;
-	Board* curr = this;
-	do {
-		for (pair<Board* const, int>& entry : moves) {
-			for (int i = 0; i < 12; i++) {
-				if (entry.first->board[i] != curr->board[i]) {
-					moves[curr] = 1;
-					break;
-				}
-				entry.second++;
-				if (entry.second >= 3) {
-					return true;
-				}
-			}
-		}
-		curr = curr->previous;
-	} while (curr->previous);
 	return false;
 }
 
@@ -572,11 +496,77 @@ void Board::undo(const Move& move) {
 
 void Board::move(const Move& move) {
 	
-	if (move.castle == none) {
+	// Check if the player is castling
+	if (move.castled == none) {
+		// Player is not castling
+		
+		// Remove the moved peice from the board
+		board[move.moved_piece] &= ~(1ULL << move.start_position);
+
+		// Remove the captured piece
+		board[move.captured_piece] &= ~(1ULL << move.end_position);
+
+		// Check if a propotion occurs
 		if (not move.promotion) {
-			board[move.captured_piece] ^= 1ULL << move.end_position;
-			board[move.]oved_piece
-m =^ 
+			// No promotion
+			// Add the moved piece back onto the board
+			board[move.moved_piece] |= 1ULL << move.end_position;
+		} else {
+			// Promotion
+			// Add a queen onto the board
+			board[turn + queens] |= 1ULL << move.end_position; 
+		}
+	} else {
+		// Player is castling
+
+		// Check the color of the king
+		if (move.moved_piece == kings) {
+			// White king
+
+			// Check castling direction
+			if (move.castled == castled_t::left) {
+				//Left castle
+
+				// Reset Pieces
+				board[kings] = 0b00001000;
+				board[rooks] |= 0b10000000;
+				board[rooks] &= ~0b00010000;
+			}
+			else {
+				// Right castle
+
+				// Reset the pieces
+				board[kings] = 0b00001000ULL << 56;
+				board[rooks] |= 0b10000000;
+				board[rooks] &= ~0b00000100;
+			}
+
+			// No longer castled
+			wcasle = false;
+		}
+		else {
+			// Black king
+
+			// Check castling direction
+			if (move.castled == castled_t::left) {
+				// Castling left
+
+				// Reset the pieces
+				board[black + kings] &= ~2305843009213693952;
+				board[black + rooks] |= 9223372036854775808;
+				board[black + rooks] &= ~1152921504606846976;
+			}
+			else {
+				// Castling right
+
+				// Reset the pieces
+				board[black + kings] &= ~144115188075855872;
+				board[black + rooks] |= 9223372036854775808;
+				board[black + rooks] &= ~288230376151711744;
+			}
+
+			// No longer castled
+			bcasle = false;
 		}
 	}
 	
@@ -587,32 +577,8 @@ m =^
 	}
 }
 
-vector<Board*> Board::get_moves(const color_t& color) {
-	//gets all moves and return them as an array;
-	std::vector<Board*> move_vec;
-	uint64_t pieces = 0;
-	color == white ? get_white(pieces) : get_black(pieces);
-	int p_leading;
-	while (pieces) {
-		p_leading = std::countr_zero(pieces);
-		uint64_t moves = 0;
-		get_moves(p_leading, moves);
-		int m_leading;
-		while (moves) {
-			m_leading = std::countr_zero(moves);
-			Board* next = new Board(this);
-			next->move(1ULL << p_leading, 1ULL << m_leading);
-			if (!next->check(color)) {
-				move_vec.push_back(next);
-			}
-			else {
-				delete next;
-			}
-			moves -= 1ULL << m_leading;
-		}
-		pieces -= 1ULL << p_leading;
-	}
-	return move_vec;
+std::vector<Board*> Board::get_moves(const color_t& color) {
+	return {};
 }
 
 double Board::evaluate(color_t color) {
@@ -696,15 +662,15 @@ double Board::evaluate(color_t color) {
 	return value + development + std::popcount(center_pawns) * 0.5 + std::popcount(vision) * 0.05 + (cc ? 0 : (castled ? 1 : -1));
 }
 
-pair<Board*, double> Board::get_best(const color_t& color, const bool& show) {
+std::pair<Board*, double> Board::get_best(const color_t& color, const bool& show) {
 	double alpha = std::numeric_limits<double>::min();
 	double beta = std::numeric_limits<double>::max();
 
 	color_t ocolor = color == white ? black : white;
-	pair<Board*, double> eval;
-	eval.second = numeric_limits<double>::min();
+	std::pair<Board*, double> eval;
+	eval.second = std::numeric_limits<double>::min();
 
-	vector<Board*> moves = get_moves(color);
+	std::vector<Board*> moves = get_moves(color);
 	std::unordered_map<Board*, double> results;
 
 	std::for_each(std::execution::par, moves.begin(), moves.end(), [&](Board* move) {
@@ -712,9 +678,9 @@ pair<Board*, double> Board::get_best(const color_t& color, const bool& show) {
 	});
 
 
-	for (const pair<Board*, double> &item : results) {
+	for (const std::pair<Board*, double> &item : results) {
 		if (debug && show) {
-			cout << "result: " << item.second;
+			std::cout << "result: " << item.second;
 			render_board(item.first, item.second);
 		}
 		if (item.second > eval.second) {
@@ -737,7 +703,7 @@ double reval(Board* board, const color_t& og_color, const color_t& curr_color, c
 	bool is_color = og_color == curr_color;
 
 	double eval = is_color ? std::numeric_limits<double>::min() : std::numeric_limits<double>::max();
-	vector<Board*> moves = board->get_moves(curr_color);
+	std::vector<Board*> moves = board->get_moves(curr_color);
 
 	bool check = board->check(curr_color);
 
@@ -767,7 +733,7 @@ double reval(Board* board, const color_t& og_color, const color_t& curr_color, c
 			if (eval > beta) {
 				goto e;
 			}
-			alpha = max(eval, alpha);
+			alpha = std::max(eval, alpha);
 		}
 		else {
 			if (result < eval) {
@@ -776,7 +742,7 @@ double reval(Board* board, const color_t& og_color, const color_t& curr_color, c
 			if (eval < alpha) {
 				goto e;
 			}
-			beta = min(eval, beta);
+			beta = std::min(eval, beta);
 		}
 	}
 
