@@ -457,7 +457,7 @@ void Board::undo(const Move& move) {
 	} else {
 		turn = white;
 	}
-    
+
     color_t color = turn;
     int opposingTurn = color_t::black - turn;
 
@@ -480,7 +480,7 @@ void Board::undo(const Move& move) {
                 board[piece_t::rooks + turn] |= 0x8000000000000000ULL;
             }
             else{
-                board[piece_t::rooks + turn] &= ~0x100000000000000ULL;
+                board[piece_t::rooks + turn] &= ~0x400000000000000ULL;
                 board[piece_t::rooks + turn] |= 0x100000000000000ULL;
             }
             board[piece_t::kings + turn] = 0x800000000000000ULL;
