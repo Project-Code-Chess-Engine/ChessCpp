@@ -526,7 +526,7 @@ void Board::move(const Move& move) {
 				board[move.captured_piece] &= ~(1ULL << move.end_position);
 			} else {
 				// Check the color of the pawn moved
-				if (move.moved_piece == pawns) {
+				if (move.moved_piece == color_t::white) {
 					board[move.captured_piece] &= ~(1ULL << move.end_position >> 8);
 				} else {
 					board[move.captured_piece] &= ~(1ULL << move.end_position << 8);
@@ -548,7 +548,7 @@ void Board::move(const Move& move) {
 		// Player is castling
 
 		// Check the color of the king
-		if (move.moved_piece == kings) {
+		if (turn == color_t::white) {
 			// White king
 
 			// Check castling direction
