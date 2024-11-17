@@ -503,8 +503,18 @@ void Board::move(const Move& move) {
 		// Remove the moved peice from the board
 		board[move.moved_piece] &= ~(1ULL << move.start_position);
 
-		// Remove the captured piece
-		board[move.captured_piece] &= ~(1ULL << move.end_position);
+		// Check to see if it was an en passent move
+		if (not enpassant) {
+			// Remove the captured piece
+			board[move.captured_piece] &= ~(1ULL << move.end_position);
+		} else {
+			// Check the color of the pawn moved
+			if (move.moved_piece == pawns) {
+				board[move.captured_piece] &= ~(1ULL << move.end_position >> 8);
+			} else {
+				board[move.captured_piece] &= ~(1ULL << move.end_position << 8);
+			}
+		}
 
 		// Check if a propotion occurs
 		if (not move.promotion) {
